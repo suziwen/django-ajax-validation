@@ -1,14 +1,32 @@
 (function($) {
     function inputs(form)   {
+        //return form.find("input, select, textarea")
         return form.find(":input:visible:not(:button)");
     }
+    function removeErrorHints(form, type) {
+        if (type=='p') {
+            inputs(form).parent().prev('ul').remove();
+            inputs(form).parent().prev('ul').remove();
+        } else if (type=='table') {
+            inputs(form).prev('ul').remove();
+            inputs(form).filter(':first').parent().parent().prev('tr').remove();
+        } else if (type=='ul') {
+            inputs(form).prev().prev('ul').remove();
+            inputs(form).filter(':first').parent().prev('li').remove();
+        }
+    }
 
-    $.fn.validate = function(url, settings) {
+    $.fn.djangoajaxform = function(url, settings) {
         settings = $.extend({
             type: 'table',
+            onValidateSucc: function(data, form){},
+            onValidateFail: function(data, form){},
             callback: false,
             fields: false,
             dom: this,
+            onStart:function(op){return true;},
+            onComplete:function(op){},
+            removeErrorHints: removeErrorHints,
             event: 'submit',
             submitHandler: null
         }, settings);
@@ -29,9 +47,16 @@
                     error: function(XHR, textStatus, errorThrown)   {
                         status = true;
                     },
+                    beforeSend: function(){
+                        return settings.onStart(settings);
+                    },
+                    complete: function(){
+                        settings.onComplete(settings);
+                    },
                     success: function(data, textStatus) {
                         status = data.valid;
-                        if (!status)    {
+                        settings.removeErrorHints(form, settings.type);
+                        if (!status) {
                             if (settings.callback)  {
                                 settings.callback(data, form);
                             }
@@ -87,6 +112,9 @@
                                     });
                                 }
                             }
+                            settings.onValidateFail(data, form);
+                        } else {
+                            settings.onValidateSucc(data, form);
                         }
                     },
                     type: 'POST',
