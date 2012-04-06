@@ -117,7 +117,7 @@
                 if (status && settings.submitHandler) {
                     return settings.submitHandler.apply(this);
                 }
-                if settings.pureAjax return false
+                if (settings.pureAjax) return false
                 return status;
             });
         });
