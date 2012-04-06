@@ -4,16 +4,14 @@
         return form.find(":input:visible:not(:button)");
     }
     function removeErrorHints(form, type) {
-        if (type=='p') {
-            inputs(form).parent().prev('ul').remove();
-            inputs(form).parent().prev('ul').remove();
-        } else if (type=='table') {
-            inputs(form).prev('ul').remove();
-            inputs(form).filter(':first').parent().parent().prev('tr').remove();
-        } else if (type=='ul') {
-            inputs(form).prev().prev('ul').remove();
-            inputs(form).filter(':first').parent().prev('li').remove();
-        }
+        //p
+        form.find('ul.errorlist').remove();
+        //table
+        inputs(form).prev('ul.errorlist').remove();
+        form.find('tr:has(ul.errorlist)').remove();
+        //ul
+        inputs(form).prev().prev('ul.errorlist').remove();
+        form.find('li:has(ul.errorlist)').remove();
     }
 
     $.fn.djangoajaxform = function(url, settings) {
@@ -71,7 +69,6 @@
                                     return inputs(form).filter(filter).parent();
                                 };
                                 if (settings.type == 'p')    {
-                                    form.find('ul.errorlist').remove();
                                     $.each(data.errors, function(key, val)  {
                                         if (key.indexOf('__all__') >= 0)   {
                                             var error = get_form_error_position(key);
@@ -83,31 +80,27 @@
                                             }
                                         }
                                         else    {
-                                            $('#' + key).parent().before('<ul class="errorlist"><li>' + val + '</li></ul>');
+                                            $('#' + key, form).parent().before('<ul class="errorlist"><li>' + val + '</li></ul>');
                                         }
                                     });
                                 }
                                 if (settings.type == 'table')   {
-                                    inputs(form).prev('ul.errorlist').remove();
-                                    form.find('tr:has(ul.errorlist)').remove();
                                     $.each(data.errors, function(key, val)  {
                                         if (key.indexOf('__all__') >= 0)   {
                                             get_form_error_position(key).parent().before('<tr><td colspan="2"><ul class="errorlist"><li>' + val + '.</li></ul></td></tr>');
                                         }
                                         else    {
-                                            $('#' + key).before('<ul class="errorlist"><li>' + val + '</li></ul>');
+                                            $('#' + key, form).before('<ul class="errorlist"><li>' + val + '</li></ul>');
                                         }
                                     });
                                 }
                                 if (settings.type == 'ul')  {
-                                    inputs(form).prev().prev('ul.errorlist').remove();
-                                    form.find('li:has(ul.errorlist)').remove();
                                     $.each(data.errors, function(key, val)  {
                                         if (key.indexOf('__all__') >= 0)   {
                                             get_form_error_position(key).before('<li><ul class="errorlist"><li>' + val + '</li></ul></li>');
                                         }
                                         else    {
-                                            $('#' + key).prev().before('<ul class="errorlist"><li>' + val + '</li></ul>');
+                                            $('#' + key, form).prev().before('<ul class="errorlist"><li>' + val + '</li></ul>');
                                         }
                                     });
                                 }
@@ -123,7 +116,8 @@
                 if (status && settings.submitHandler) {
                     return settings.submitHandler.apply(this);
                 }
-                return status;
+                //return status;
+                return false;
             });
         });
     };
