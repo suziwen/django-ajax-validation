@@ -26,6 +26,7 @@
             onComplete:function(op){},
             removeErrorHints: removeErrorHints,
             event: 'submit',
+            pureAjax: true,
             submitHandler: null
         }, settings);
 
@@ -116,8 +117,8 @@
                 if (status && settings.submitHandler) {
                     return settings.submitHandler.apply(this);
                 }
-                //return status;
-                return false;
+                if settings.pureAjax return false
+                return status;
             });
         });
     };
