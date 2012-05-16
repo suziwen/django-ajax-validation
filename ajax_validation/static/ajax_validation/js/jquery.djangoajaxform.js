@@ -14,7 +14,7 @@
         form.find('li:has(ul.errorlist)').remove();
     }
 
-    $.fn.djangoajaxform = function(url, settings) {
+    $.fn.djangoajaxform = function(settings) {
         settings = $.extend({
             type: 'table',
             onValidateSucc: function(data, form){},
@@ -38,6 +38,7 @@
                 if (settings.fields) {
                     data += '&' + $.param({fields: settings.fields});
                 }
+                var url = form.attr('action');
                 $.ajax({
                     async: false,
                     data: data,
